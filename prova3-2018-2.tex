@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[brazil]{babel}
 \usepackage{amsmath,amssymb}
+\usepackage{graphicx}
 \usepackage{pdfsync}
 \usepackage[all]{xy}
 \usepackage{color}
@@ -31,9 +32,46 @@ CIC 117536 - Projeto e Análise de Algoritmos \\[.5cm]  Terceira Prova \\[.5cm] 
 
  
   \resposta{
-    Escreva aqui sua solução.
-  }
   
+  	A abordagem será propor um algoritmo que decide a satisfatibilidade de 2-SAT em tempo polinomial.
+    
+  	Estamos considerando fórmulas no formato CNF (\textit{Conjunctive normal form}) que são compostas por cláusulas que contém apenas 2 termos e queremos apontar a existência (ou não) de alguma combinação de valores tal que a CNF seja verdadeira (todas cláusulas sejam verdadeiras).
+    
+    Caso alguma cláusula contenha apenas um termo, como expresso no exemplo do enunciado, pode-se repetir a variável única daquela cláusula sem perda de generalidade de forma a satisfazer a existência de exatamente dois literais por cláusula (Afinal a repetição de uma variável em uma disjunção não alterará o resultado lógico).
+    
+    Agora, seja G(V,E) um dígrafo cujo conjunto de vértices é igual a 2 vezes o número de variáveis expressas na CNF (Para cada $p \in CNF$, é adicionado também um vértice para $\neg p$ no gráfico G). Esse grafo representará a CNF através de implicações lógicas.
+    
+    A criação das arestas de G é realizada a partir da equivalência lógica $$(p \lor q) \iff (\neg p \implies q) \land (\neg q \implies p) $$ onde para cada cláusula $(p \lor q) \in CNF$, são criadas duas arestas no gráfico G: uma ligando o vértice $\neg p$ ao vértice $q$ e a outra ligando o vértice $\neg q$ ao vértice $p$.
+    
+    Para ilustrar, a seguinte CNF (Equivalente à dada no enunciado) $$(x_1\lor \neg x_2)\land (\neg x_1 \lor \neg x_3) \land (x_1 \lor x_2) \land (x_3 \lor x_3)$$ gerará o seguinte dígrafo G:
+  
+  \begin{center}
+    \includegraphics[width=7cm,height=7cm]{graph2.png}
+    \end{center}
+    
+ 	Agora, analisemos o caso particular em que $\exists (p,\neg p), (\neg p, p) \in E$ para algum $p \in V$:
+\begin{itemize}
+\item A coexistência dessas duas arestas geram uma contradição no sentido de que não é possível que ambas implicações sejam satisfeitas independente do valor de $p$, conforme evidenciado pela tabela verdade abaixo. 
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\color{blue}p & \color{blue}$\neg p$ & \color{blue}$(p \implies \neg p)$ & \color{blue}$(\neg p \implies p)$ \\ \hline
+\color{blue}0 & \color{blue}1  & \color{blue}1              & \color{blue}0              \\ \hline
+\color{blue}1 & \color{blue}0  & \color{blue}0              & \color{blue}1              \\ \hline
+\end{tabular}
+\end{table}
+\item Como G é um dígrafo que representa a CNF através de implicações lógicas, a existência de um caminho do vértice $p$ ao vértice $\neg p$ possui o mesmo significado da existência de uma aresta $(p, \neg p)$, pela transitividade da operação de implicação. 
+\item Assim, a coexistência dos caminhos de $(p, \neg p)$ e $(\neg p, p)$ no grafo G também representa uma contradição lógica, representando que a CNF é insatisfatível, nesse caso.
+\item Por outro lado, caso apenas um desses caminhos (ou nenhum deles) exista, a CNF é dita satisfatível, pelas tabelas verdade da operação de implicação.
+
+ 
+\end{itemize}
+     Portanto, observamos que o problema 2-SAT se reduz ao problema de verificar a existência, em um grafo G, de caminhos da forma $(p, \neg p)$ e $(\neg p, p)$, $\forall p \in V$, e isso pode ser realizado por algoritmos simples como Busca em Largura ou Busca em Profundidade, que rodam em tempo polinomial.
+
+Logo, 2-SAT é decidível em tempo polinomial (2-SAT $\in$ P).
+  }
+ 
 \item {\bf (2.5 pontos)} Em aula, assumimos que SAT é um problema
   NP-completo (Teorema de Cook-Levin), e a partir deste fato mostramos
   que 3-SAT e CLIQUE também são problemas NP-completos. As reduções
@@ -68,7 +106,19 @@ $$\xymatrix{
 E todas as reduções (de 3-SAT para $Q'$, de $Q'$ para $Q$ e de $Q$ para HAM-CYCLE) devem ser detalhadas na sua solução.
 
 \resposta{
-    Escreva aqui sua solução.
+
+    Para provar que HAM-CYCLE é NP-completo, deve-se mostrar que:
+    
+\begin{enumerate}
+\item HAM-CYCLE está em NP;
+\item $\forall$ A $\in$ NP, A é redutível em tempo polinomial a HAM-CYCLE.
+\end{enumerate}
+	Para (a), devemos mostrar que é possível verificar uma solução para HAM-CYCLE em tempo polinomial. 
+    
+    Assim, suponha uma solução proposta que retorne uma lista com os vértices na ordem que aparecem no caminho hamiltoniano. Para verificar essa solução, basta verificar se todos os vértices citados estão de fato no grafo, checar se todos eles estão conectados com o próximo vértice da lista, e confirmar se o último vértice está conectado ao primeiro. Note que essa verificação pode ser realizada em tempo polinomial. Logo, HAM-CYCLE $\in$ NP.
+
+    Para (b), mostramos que existe uma redução de 3-SAT para HAM-CYCLE. Isto é, mostramos que através de uma solução para HAM-CYCLE pode-se resolver 3-SAT.    
+    Para computar essa redução, deve-se elaborar uma forma de converter fórmulas 3CNF em grafos em que a satisfatibilidade da CNF corresponde à existência de um ciclo hamiltoniano. 
   }
   
 \item {\bf (2.5 pontos)} Considere o seguinte jogo em um grafo
@@ -106,7 +156,29 @@ E todas as reduções (de 3-SAT para $Q'$, de $Q'$ para $Q$ e de $Q$ para HAM-CY
   intermediárias, caso existam, devem ser incluídas na solução.
 
   \resposta{
-    Escreva aqui sua solução.
+  
+    Mostraremos que FNCX-SAT está em P propondo um algoritmo que decide FNCX-SAT e roda em tempo polinomial.
+    
+    Apesar de similar às CFNs visto anteriormente, agora as conjunções operam sobre cláusulas que contém operações lógicas XOR. Para ilustrar a diferença, segue a seguinte fórmula na FNCX:
+    $$ (a \oplus b \oplus c) \land (b \oplus d \oplus \neg c)$$
+    
+    No entanto, o interessante está no fato que a operação $\oplus$ é equivalente à soma em álgebra abstrata, o que nos permite realizar a transformação da fórmula FNCX em um sistema de equações lineares módulo 2.
+    Assim, pela fórmula acima deriva-se o seguinte sistema de equações:
+    $$ a + b + c \equiv 1 \mod 2$$
+    $$ b + d + (1+c) \equiv 1 \mod 2$$
+	Assim, o que antes era uma fórmula de satisfatibilidade lógica, agora é um sistema linear. Para apurar a existência de soluções, pode-se utilizar diversos mecanismos de álgebra linear que nos permite computar esse sistema sem grandes problemas, como o algoritmo de escalonamento (Eliminação de Gauss), por exemplo.
+    Nesse caso particular utilizando a Eliminação de Gauss, são realizadas sucessivas operações elementares, como:
+    
+\begin{enumerate}
+\item trocar duas linhas;
+\item multiplicar os elementos de uma linha por uma constante
+\item substituir uma linha pela sua soma com um múltiplo de outra
+\end{enumerate}
+Observe que todas essas operações podem ser realizadas em tempo polinomial. 
+
+Logo, a Eliminação de Gauss, que é a execução sucessiva dessas operações elementares, também roda em tempo polinomial.
+
+Dessa forma, é possível decidir FNCX-SAT em tempo polinomial através da conversão da fórmula lógica em um sistema linear módulo 2 seguido da utilização do método do escalonamento para resolver o sistema. (FNCX-SAT $\in$ P)
   }
 \end{enumerate}
 
